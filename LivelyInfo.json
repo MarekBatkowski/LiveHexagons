@@ -1,0 +1,13 @@
+{
+    "AppVersion": "0.0.0.1",
+    "Title": "Live Hexagons",
+    "Thumbnail": "lively_t.jpg",
+    "Preview": "lively_p.gif",
+    "Desc": "Hexagonal pattern with dynamic backlight",
+    "Author": "Marek Batkowski",
+    "Contact": "https://github.com/MarekBatkowski",
+    "Type": 1,
+    "FileName": "hexagons.html",
+    "Arguments": null,
+    "IsAbsolutePath": false
+  }

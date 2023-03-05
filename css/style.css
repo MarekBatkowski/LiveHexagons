@@ -1,0 +1,9 @@
+#canvas {
+    position: fixed;
+    z-index: -1;
+  }
+
+body {
+    margin: 0;
+    padding: 0;
+  }

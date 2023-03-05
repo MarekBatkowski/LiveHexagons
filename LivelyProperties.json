@@ -1,0 +1,34 @@
+{
+    "hexagonsSize": {
+        "text": "Hexagons Size",
+        "type": "slider",
+        "max": 250,
+        "min": 50,
+        "tick": 201,
+        "value": 50.0
+    },
+
+    "hexagonsMargin": {
+        "text": "Hexagons Margin",
+        "type": "slider",
+        "max": 50,
+        "min": 0,
+        "tick": 51,
+        "value": 5.0
+    },
+
+    "cursorLightColor": {
+        "text": "Cursor Light Color",
+        "type": "color",
+        "value": "#6080ff"
+    },
+
+    "lightSize": {
+        "text": "Light Size",
+        "type": "slider",
+        "max": 500,
+        "min": 25,
+        "tick": 476,
+        "value": 100.0
+    }
+}
