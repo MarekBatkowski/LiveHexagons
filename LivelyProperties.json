@@ -1,4 +1,44 @@
 {
+    "label1": {
+        "type": "label",
+        "value": "Colors:"
+    },
+
+    "backgroundColor1": {
+        "text": "Cursor Light Color 1",
+        "type": "color",
+        "value": "#0C0C0C"
+    },
+
+    "backgroundColor2": {
+        "text": "Cursor Light Color 2",
+        "type": "color",
+        "value": "#181818"
+    },
+
+    "hexagonsColor1": {
+        "text": "Hexagons Gradient Color 1",
+        "type": "color",
+        "value": "#384048"
+    },
+
+    "hexagonsColor2": {
+        "text": "Hexagons Gradient Color 2",
+        "type": "color",
+        "value": "#54606C"
+    },
+
+    "HexagonsEdgeStyle": {
+        "text": "Hexagons Edge Color",
+        "type": "color",
+        "value": "#C0C0C0"
+    },
+
+    "label2": {
+        "type": "label",
+        "value": "Hexagons:"
+    },
+
     "hexagonsSize": {
         "text": "Hexagons Size",
         "type": "slider",
@@ -17,6 +57,11 @@
         "value": 5.0
     },
 
+    "label3": {
+        "type": "label",
+        "value": "Lights:"
+    },
+
     "cursorLightColor": {
         "text": "Cursor Light Color",
         "type": "color",
@@ -27,8 +72,26 @@
         "text": "Light Size",
         "type": "slider",
         "max": 500,
-        "min": 25,
-        "tick": 476,
+        "min": 0,
+        "tick": 501,
         "value": 100.0
+    },
+
+    "lightTrail": {
+        "text": "Cursor Light Trail",
+        "type": "slider",
+        "max": 100,
+        "min": 0,
+        "tick": 501,
+        "value": 100.0
+    },
+
+    "randomLightsCount": {
+        "text": "Random Lights Count",
+        "type": "slider",
+        "max": 50,
+        "min": 0,
+        "tick": 51,
+        "value": 3.0
     }
 }

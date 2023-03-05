@@ -1,22 +1,38 @@
+// consts
+const fps = 120;
+const canvas = document.getElementById('canvas');
+const context = canvas.getContext('2d');
 const hexToDecimal = hex => parseInt(hex, 16);
 const angle = 2 * Math.PI / 6;
+
 const cursor = {
     x: innerWidth / 2,
     y: innerHeight / 2,
-  };
+};
 
+//variables customisable using LivelyProperties.json
+let backgroundColor1 = "#0C0C0C" // "rgb(12,12,12)";
+let backgroundColor2 = "#181818" // "rgb(24,24,24)";
+let hexagonsColor1 = "#384048" // "rgb(56,64,72)";
+let hexagonsColor2 = "#54606C" // "rgb(84,96,108)";
+let HexagonsEdgeStyle = "#C0C0C0" // "rgb(192,192,192)";
 let hexagonsSize = 50;
 let hexagonsMargin = 5;
 let cursorLightColor = "rgb(64,128,255)";
 let lightSize = 50;
+let lightTrail = 15;
+let randomLightsCount = 3;
+////////////////////////////////////////////////////
 
 class Light {
-    constructor(x, y, radius, color, intensity) {
+    constructor(x, y, radius, color, intensity, xSpeed = 0, ySpeed = 0) {
     this.x = x;
     this.y = y;
     this.radius = radius;
     this.color = color;
     this.intensity = intensity
+    this.xSpeed = xSpeed;
+    this.ySpeed = ySpeed;
     }
 
     // use this to create light by creating smaller more transparent objects as "echo"
@@ -36,7 +52,6 @@ class Light {
             gradient.addColorStop(1,   "rgba("+colorArr[0]+","+colorArr[1]+","+colorArr[2]+",0)");
 
         context.fillStyle = gradient;
-        //context.fillStyle = "rgba("+colorArr[0]+","+colorArr[1]+","+colorArr[2]+","+this.intensity+")"
         context.fillRect(0, 0, size*2, size*2); 
         context.setTransform(1, 0, 0, 1, 0, 0);  
     }
@@ -45,15 +60,27 @@ class Light {
         this.x = x;
         this.y = y;
     }
+
+    move() {
+        this.x += this.xSpeed;
+        this.y += this.ySpeed;
+    }
 }
 
 let cursorLight = new Light(cursor.x, cursor.y, lightSize, cursorLightColor, 1);
 let randomLights = [];
 
-const canvas = document.getElementById('canvas');
-const context = canvas.getContext('2d');
+let backgroundGradient = context.createLinearGradient(0, 0, innerHeight, innerWidth);
+    backgroundGradient.addColorStop(0, backgroundColor1);
+    backgroundGradient.addColorStop(1, backgroundColor2);
+
+let hexagondGradient = context.createLinearGradient(0, 0, innerHeight, innerWidth);
+    hexagondGradient.addColorStop(0, hexagonsColor1);
+    hexagondGradient.addColorStop(1, hexagonsColor2);
+
+updateRandomLights();
 setCanvasSize();
-anim();
+animate();
 
 // listeners
 
@@ -77,6 +104,16 @@ function setCanvasSize() {
     canvas.width = innerWidth;
 }
 
+function rand(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+function updateRandomLights() {
+    for(let i = 0; i < 3; i++) {
+        
+    }
+}
+
 // hexagons generation
 
 function drawGrid(width, height, size, margin) {
@@ -90,8 +127,8 @@ function drawGrid(width, height, size, margin) {
 function drawHexagon(x, y, size) {
     context.beginPath();
     context.lineWidth = 1;
-    context.strokeStyle = "rgba(255,255,255,1)"
-    context.fillStyle= "rgba(64,64,64,1)"
+    context.strokeStyle = HexagonsEdgeStyle;
+    context.fillStyle = hexagondGradient;
 
     for (let i = 0; i < 6; i++) {
         context.lineTo(x + size * Math.cos(angle * i), y + size * Math.sin(angle * i));
@@ -101,18 +138,50 @@ function drawHexagon(x, y, size) {
     context.stroke();
 }
 
-function anim() {
-    requestAnimationFrame(anim);
-    context.fillStyle = "rgba(16,16,16,1)";
+function animate() {
+    context.fillStyle = backgroundGradient;
     context.fillRect(0, 0, canvas.width, canvas.height);
     cursorLight.moveTo(cursor.x, cursor.y);
     cursorLight.draw(context);
+    updateRandomLights();
     drawGrid(canvas.width, canvas.height, hexagonsSize, hexagonsMargin);
+    setTimeout(() => {requestAnimationFrame(animate);}, 1000 / fps);   // sync fps
 }
 
-function livelyPropertyListener(name, val)
-{
+function livelyPropertyListener(name, val) {
     switch(name) {
+        case "backgroundColor1":
+            backgroundColor1 = val;
+            backgroundGradient = context.createLinearGradient(0, 0, innerHeight, innerWidth);
+            backgroundGradient.addColorStop(0, backgroundColor1);
+            backgroundGradient.addColorStop(1, backgroundColor2);
+            break;
+
+        case "backgroundColor2":
+            backgroundColor2 = val;
+            backgroundGradient = context.createLinearGradient(0, 0, innerHeight, innerWidth);
+            backgroundGradient.addColorStop(0, backgroundColor1);
+            backgroundGradient.addColorStop(1, backgroundColor2);
+            break;
+
+        case "hexagonsColor1":
+            hexagonsColor1 = val;
+            hexagondGradient = context.createLinearGradient(0, 0, innerHeight, innerWidth);
+            hexagondGradient.addColorStop(0, hexagonsColor1);
+            hexagondGradient.addColorStop(1, hexagonsColor2);
+            break;
+
+        case "hexagonsColor2":
+            hexagonsColor2 = val;
+            hexagondGradient = context.createLinearGradient(0, 0, innerHeight, innerWidth);
+            hexagondGradient.addColorStop(0, hexagonsColor1);
+            hexagondGradient.addColorStop(1, hexagonsColor2);
+            break;
+
+        case "HexagonsEdgeStyle":
+            HexagonsEdgeStyle = val;
+            break;
+
         case "hexagonsSize":
             hexagonsSize = val;
             break;
