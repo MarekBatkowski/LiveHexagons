@@ -1,7 +1,7 @@
 {
     "label1": {
         "type": "label",
-        "value": "COLORS:"
+        "value": "BACKGROUND AND GRID COLORS:"
     },
 
             "backgroundColor1": {
@@ -13,7 +13,7 @@
             "backgroundColor2": {
                 "text": "Cursor light color 2",
                 "type": "color",
-                "value": "#181818"
+                "value": "#242424"
             },
 
             "hexagonsColor1": {
@@ -57,37 +57,31 @@
                 "value": 5
             },
 
-            "displayAsTriangles": {
-                "type": "checkbox",
-                "value": false,
-                "text": "Display as triangles"
-            },
-
     "label3": {
         "type": "label",
         "value": "CURSOR LIGHT:"
     },
 
             "cursorLightColor": {
-                "text": "Cursor light color",
+                "text": "Cursor light start color",
                 "type": "color",
                 "value": "#6080FF"
             },
 
             "cursorLightColorHueChange": {
-                "text": "Cursor light color change per frame",
+                "text": "Cursor light color change per second in degrees",
                 "type": "slider",
-                "max": 10,
-                "min": -10,
-                "tick": 21,
-                "value": 0.0
+                "max": 360,
+                "min": -360,
+                "tick": 721,
+                "value": 5
             },
 
             "cursorLightSize": {
                 "text": "Cursor light size",
                 "type": "slider",
-                "max": 250,
-                "min": 0,
+                "max": 200,
+                "min": 5,
                 "tick": 251,
                 "value": 50
             },
@@ -95,10 +89,10 @@
             "cursorLightTrailLenght": {
                 "text": "Cursor light trail length",
                 "type": "slider",
-                "max": 500,
+                "max": 100,
                 "min": 0,
-                "tick": 501,
-                "value": 100
+                "tick": 101,
+                "value": 25
             },
 
     "label4": {
@@ -109,51 +103,51 @@
             "randomLightsCount": {
                 "text": "Random lights count",
                 "type": "slider",
-                "max": 15,
+                "max": 10,
                 "min": 0,
                 "tick": 16,
                 "value": 2.0
             },
 
             "randomLightsColor": {
-                "text": "Random lights color hue range start",
+                "text": "Random lights start color hue range",
                 "type": "color",
                 "value": "#FF6000"
             },
 
             "randomLightsColorHueRange": {
-                "text": "Random lights color max hue range",
+                "text": "Random lights start color max hue range in degrees",
                 "type": "slider",
-                "max": 255,
-                "min": -255,
-                "tick": 511,
-                "value": 0
+                "max": 360,
+                "min": -360,
+                "tick": 721,
+                "value": -64
             },
 
             "randomLightsColorHueChange": {
-                "text": "Random light color change per frame",
+                "text": "Random lights color change per second in degrees",
                 "type": "slider",
-                "max": 10,
-                "min": -10,
-                "tick": 21,
+                "max": 360,
+                "min": -360,
+                "tick": 721,
                 "value": 0.0
             },
 
             "randomLightsSizeMin": {
                 "text": "Random lights size min",
                 "type": "slider",
-                "max": 250,
-                "min": 0,
-                "tick": 251,
+                "max": 100,
+                "min": 5,
+                "tick": 91,
                 "value": 20
             },
 
             "randomLightsSizeMax": {
                 "text": "Random lights size max",
                 "type": "slider",
-                "max": 250,
-                "min": 0,
-                "tick": 251,
+                "max": 100,
+                "min": 10,
+                "tick": 91,
                 "value": 40
             },
 
@@ -180,7 +174,96 @@
                 "type": "slider",
                 "max": 100,
                 "min": 0,
-                "tick": 501,
+                "tick": 101,
                 "value": 50
+            },
+
+    "label5": {
+        "type": "label",
+        "value": "CLICK LIGHTS:"
+    },
+    
+            "clickLightsCount": {
+                "text": "Click lights count",
+                "type": "slider",
+                "max": 10,
+                "min": 0,
+                "tick": 16,
+                "value": 15
+            },
+
+            "clickLightsColor": {
+                "text": "Click lights start color hue range",
+                "type": "color",
+                "value": "#FF6000"
+            },
+
+            "clickLightsColorHueRange": {
+                "text": "Click lights start color max hue range in degrees",
+                "type": "slider",
+                "max": 360,
+                "min": -360,
+                "tick": 721,
+                "value": 32
+            },
+
+            "clickLightsMatchCursor": {
+                "type": "checkbox",
+                "value": true,
+                "text": "Match start color with cursor light"
+            },
+
+            "clickLightsColorHueChange": {
+                "text": "Click lights color change per second in degrees",
+                "type": "slider",
+                "max": 360,
+                "min": -360,
+                "tick": 721,
+                "value": 30
+            },
+
+            "clickLightsSizeMin": {
+                "text": "Click lights size min",
+                "type": "slider",
+                "max": 100,
+                "min": 5,
+                "tick": 91,
+                "value": 10
+            },
+
+            "clickLightsSizeMax": {
+                "text": "Click lights size max",
+                "type": "slider",
+                "max": 100,
+                "min": 10,
+                "tick": 91,
+                "value": 15
+            },
+
+            "clickLightsSpeedMin": {
+                "text": "Click lights speed min",
+                "type": "slider",
+                "max": 100,
+                "min": 0,
+                "tick": 201,
+                "value": 25
+            },
+
+            "clickLightsSpeedMax": {
+                "text": "Click lights speed max",
+                "type": "slider",
+                "max": 100,
+                "min": 0,
+                "tick": 201,
+                "value": 25
+            },
+
+            "clickLightsTrailLenght": {
+                "text": "Cursor light trail",
+                "type": "slider",
+                "max": 100,
+                "min": 0,
+                "tick": 101,
+                "value": 10
             }
 }

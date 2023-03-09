@@ -1,39 +1,58 @@
-// variables customisable using LivelyProperties.json
-
-// COLORS:
+// BACKGROUND AND GRID COLORS:
 let backgroundColor1 =  "#0C0C0C" // "rgb(12,12,12)";
-let backgroundColor2 =  "#181818" // "rgb(24,24,24)";
+let backgroundColor2 =  "#242424" // "rgb(24,24,24)";
 let hexagonsColor1 =    "#384048" // "rgb(56,64,72)";
 let hexagonsColor2 =    "#54606C" // "rgb(84,96,108)";
 let HexagonsEdgeColor = "#C0C0C0" // "rgb(192,192,192)";
-
-// HEXAGONS:
-let hexagonsSize = 50;
+// HEXAGONS:ss
+let hexagonsSize = 40;
 let hexagonsMargin = 5;
-let displayAsTriangles = false;         //
-
+//let displayAsTriangles = false;
 // CURSOR LIGHT:    
 let cursorLightColor = "#6080FF";
-let cursorLightColorHueChange = 10;
+let cursorLightColorHueChange = -18;
 let cursorLightSize = 50;
-let cursorLightTrailLenght = 100;
-
+let cursorLightTrailLenght = 25;
 // RANDOM LIGHTS 
 let randomLightsCount = 2;
 let randomLightsColor = "#FF6000";
 let randomLightsColorHueRange = -64;      
-let randomLightsColorHueChange = 0;  
+let randomLightsColorHueChange = 90;  
 let randomLightsSizeMin = 20;
 let randomLightsSizeMax = 40;
 let randomLightsSpeedMin = 3;
 let randomLightsSpeedMax = 5;
 let randomLightsTrailLenght = 50;
+// CLICK LIGTHS
+let clickLightsCount = 15;
+let clickLightsColor = "#6080FF";
+let clickLightsColorHueRange = 32      
+let clickLightsColorHueChange = 30; 
+let clickLightsMatchCursor = true;
+let clickLightsSizeMin = 10;
+let clickLightsSizeMax = 15;
+let clickLightsSpeedMin = 20;
+let clickLightsSpeedMax = 20;
+let clickLightsTrailLenght = 10;
  
 // consts
+const FramesPerSecond = 120;
+const LogicUpdatesPerSecond = 120;
 
-const fps = 240;
 const rareOperationsSyncFpsDivider = 12;
-const angle = 2 * Math.PI / 6;
+const angle60 = Math.PI * 2 / 6;
+const angle30 = Math.PI * 2 / 12;
+
+const canvas = document.getElementById('canvas');
+const context = canvas.getContext('2d');
+canvas.height = innerHeight;
+canvas.width = innerWidth;
+
+const cursor = {
+    x: - 2 * cursorLightSize,
+    y: - 2 * cursorLightSize
+};
+
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 const hexToDecimal = hex => parseInt(hex, 16);
@@ -154,7 +173,60 @@ function normalize_rgb_value(color, m) {
     return color;
 }
 
-// objects
+// hexagons generation
+
+function drawGrid(width, height, size, margin) {
+    for (let y = 0; y < height + size; y += size * Math.sin(angle60)) {
+        for (let x = 0, j = 0; x < width + (2 + (-1)**j) * size; x += size * (1 + Math.cos(angle60)), y += (-1) ** j++ * size * Math.sin(angle60)) {
+        //    if(!displayAsTriangles)
+                drawHexagon(x, y, size-margin);
+        //    else
+        //      drawTriangle(x, y, size, margin);
+        }
+    }
+}
+
+function drawHexagon(x, y, size) {
+    context.beginPath();
+    context.lineWidth = 1;
+    context.strokeStyle = HexagonsEdgeColor;
+    context.fillStyle = hexagondGradient;
+
+    for (let i = 0; i < 6; i++) 
+        context.lineTo(x + size * Math.cos(angle60 * i), y + size * Math.sin(angle60 * i));
+    context.closePath();
+    context.fill();
+    context.stroke();
+}
+
+function drawTriangle(x, y, size, margin) {
+    context.lineWidth = 1;
+    context.strokeStyle = HexagonsEdgeColor;
+    context.fillStyle = hexagondGradient;
+    let centerOffset = 2/3*(size)*Math.sqrt(3)/2
+
+    for (let i = 0; i < 6; i++) {
+        context.beginPath();
+        context.lineTo(x + margin * Math.cos((angle60 * i) + angle30), y + margin * Math.sin((angle60 * i) + angle30));
+        context.lineTo(x + centerOffset * Math.cos(angle30 + (angle60 * i)), y + centerOffset * Math.sin(angle30 + (angle60 * i)));
+        context.closePath();
+        context.stroke();
+
+        context.beginPath();
+        context.lineWidth = 1;
+        context.strokeStyle = HexagonsEdgeColor;
+        context.fillStyle = hexagondGradient;
+    
+        triangleX = x + centerOffset * Math.cos(angle30 + (angle60 * i));
+        triangleY = y + centerOffset * Math.sin(angle30 + (angle60 * i));
+
+        for (let j = 0; j < 3; j++) 
+            context.lineTo(triangleX + size/2 * Math.cos((angle60 * 2 * j) + (angle60 * i) - angle30), triangleY + size/2 * Math.sin((angle60 * 2 * j) + (angle60 * i) - angle30));
+        context.closePath();
+        context.fill();
+        context.stroke();
+    }
+}
 
 class Particle{
     constructor(x, y, radius, color, remainingLife) {
@@ -164,10 +236,9 @@ class Particle{
         this.color = color;
         this.remainingLife = remainingLife;
         this.totalLife = remainingLife;
-        // console.log(this);
     }
 
-    draw(context) {
+    draw() {
         const size = this.radius*2*this.remainingLife/this.totalLife;
         context.translate(this.x-size, this.y-size);
 
@@ -187,10 +258,8 @@ class Particle{
         this.remainingLife--;
     }
 
-    update()
-    {
+    update() {
         this.reduceLife();
-        this.draw(context);
     }
 }
 
@@ -204,10 +273,12 @@ class Light {
         this.hueChange = hueChange;
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
+
+        if(this.hueChange!=0)
+            setInterval(() => {this.hueChange>0 ? this.changeHue(1) : this.changeHue(-1);}, 1000/Math.abs(this.hueChange));
     }
 
-    // use this to create light by creating smaller more transparent objects as "echo"
-    draw(context) {
+    draw() {
         const size = this.radius*2;
         context.translate(this.x-size, this.y-size);
 
@@ -223,12 +294,34 @@ class Light {
         context.setTransform(1, 0, 0, 1, 0, 0);  
     }
 
-    moveTo(x,y) {
+    moveTo(x,y) {   // CursorLight exclusive
+
+        let distance = Math.sqrt((x-this.x)*(x-this.x) + (y-this.y)*(y-this.y))
+        let minDistanceBetweenParticles = Math.max(3, this.radius/5);
+
+        if(distance > minDistanceBetweenParticles) {
+            let trailAngle = Math.atan2(x-this.x, y-this.y);// * 180 / Math.PI;
+
+            for(let i=0; i<Math.floor(distance/minDistanceBetweenParticles); i++)
+                trailParticles.push(new Particle(this.x+Math.sin(trailAngle)*minDistanceBetweenParticles*i, this.y+Math.cos(trailAngle)*minDistanceBetweenParticles*i, this.radius, this.color, this.trailLenght));
+        }
+
         this.x = x;
         this.y = y;
     }
 
     move() {
+
+        let distance = Math.sqrt(this.xSpeed*this.xSpeed + this.ySpeed*this.ySpeed)
+        let minDistanceBetweenParticles = Math.max(3, this.radius/5);
+
+        if(distance > minDistanceBetweenParticles) {
+            let trailAngle = Math.atan2(this.xSpeed, this.ySpeed);// * 180 / Math.PI;
+
+            for(let i=0; i<Math.floor(distance/minDistanceBetweenParticles); i++)
+                trailParticles.push(new Particle(this.x+Math.sin(trailAngle)*minDistanceBetweenParticles*i, this.y+Math.cos(trailAngle)*minDistanceBetweenParticles*i, this.radius, this.color, this.trailLenght));
+        }
+
         this.x += this.xSpeed;
         this.y += this.ySpeed;
     }
@@ -242,53 +335,23 @@ class Light {
     }
 
     update()
-    {
-        if(this.hueChange!=0 && hueChangecounter == 0)
-            this.changeHue(this.hueChange);
-        
+    {      
         if(this.trailLenght>0)
             this.createParticle();
 
         if(this.xSpeed!=0 && this.ySpeed!=0)
             this.move();
-
-        this.draw(context);
     }
 }
-
-// hexagons generation
-
-function drawGrid(width, height, size, margin) {
-    for (let y = 0; y < height + size; y += size * Math.sin(angle)) {
-        for (let x = 0, j = 0; x < width + (2 + (-1)**j) * size; x += size * (1 + Math.cos(angle)), y += (-1) ** j++ * size * Math.sin(angle)) {
-            drawHexagon(x, y, size-margin);
-        }
-    }
-}
-
-function drawHexagon(x, y, size) {
-    context.beginPath();
-    context.lineWidth = 1;
-    context.strokeStyle = HexagonsEdgeColor;
-    context.fillStyle = hexagondGradient;
-
-    for (let i = 0; i < 6; i++) 
-        context.lineTo(x + size * Math.cos(angle * i), y + size * Math.sin(angle * i));
-    context.closePath();
-    context.fill();
-    context.stroke();
-}
-
-//function drawTriangles(x, y, size)
 
 // lights
 
 function newRandomLight() {
     let size = rand(randomLightsSizeMin, randomLightsSizeMax);
     let speed = rand(randomLightsSpeedMin, randomLightsSpeedMax);
-    let angle = Math.random() * Math.PI * 2;
-    let xSpeed = Math.cos(angle)*speed;
-    let ySpeed = Math.sin(angle)*speed;
+    let randomLightAngle = Math.random() * Math.PI * 2;
+    let xSpeed = Math.cos(randomLightAngle)*speed;
+    let ySpeed = Math.sin(randomLightAngle)*speed;
     let xPos;
     let yPos;
     let random = Math.floor(Math.random()*2);
@@ -297,44 +360,78 @@ function newRandomLight() {
         color = changeHue(randomLightsColor, randomLightsColorHueRange>0 ? rand(0, randomLightsColorHueRange) : -rand (0, -randomLightsColorHueRange));
 
     if(xSpeed >= 0 && ySpeed >= 0){
-        xPos = (random == 0 ? 0 : rand(0, innerWidth/2)) - Math.cos(angle)*size;
-        yPos = (random != 0 ? 0 : rand(0, innerHeight/2)) - Math.sin(angle)*size;
+        xPos = (random == 0 ? 0 : rand(0, innerWidth/2)) - Math.cos(randomLightAngle)*size;
+        yPos = (random != 0 ? 0 : rand(0, innerHeight/2)) - Math.sin(randomLightAngle)*size;
     }
     if(xSpeed >= 0 && ySpeed < 0){
-        xPos = (random == 0 ? 0 : rand(0, innerWidth/2)) - Math.cos(angle)*size;
-        yPos = (random != 0 ? innerHeight : rand(innerHeight/2, innerHeight)) + Math.sin(angle)*size;
+        xPos = (random == 0 ? 0 : rand(0, innerWidth/2)) - Math.cos(randomLightAngle)*size;
+        yPos = (random != 0 ? innerHeight : rand(innerHeight/2, innerHeight)) + Math.sin(randomLightAngle)*size;
     }
     if(xSpeed < 0 && ySpeed < 0){
-        xPos = (random == 0 ? innerWidth : rand(innerWidth/2, innerWidth)) + Math.cos(angle)*size;
-        yPos = (random != 0 ? innerHeight : rand(innerHeight/2, innerHeight)) + Math.sin(angle)*size;
+        xPos = (random == 0 ? innerWidth : rand(innerWidth/2, innerWidth)) + Math.cos(randomLightAngle)*size;
+        yPos = (random != 0 ? innerHeight : rand(innerHeight/2, innerHeight)) + Math.sin(randomLightAngle)*size;
     }
     if(xSpeed < 0 && ySpeed >= 0){
-        xPos = (random == 0 ? innerWidth : rand(innerWidth/2, innerWidth)) + Math.cos(angle)*size;
-        yPos = (random != 0 ? 0 : rand(0, innerHeight/2)) - Math.sin(angle)*size;
+        xPos = (random == 0 ? innerWidth : rand(innerWidth/2, innerWidth)) + Math.cos(randomLightAngle)*size;
+        yPos = (random != 0 ? 0 : rand(0, innerHeight/2)) - Math.sin(randomLightAngle)*size;
     }
 
     return new Light(xPos, yPos, size, color, randomLightsTrailLenght, randomLightsColorHueChange, xSpeed, ySpeed);
 }
 
+function newClickLight() {
+    let size = rand(clickLightsSizeMin, clickLightsSizeMax);
+    let speed = rand(clickLightsSpeedMin, clickLightsSpeedMax);
+    let clickLightAngle = Math.random() * Math.PI * 2;
+    let xSpeed = Math.cos(clickLightAngle)*speed;
+    let ySpeed = Math.sin(clickLightAngle)*speed;
+    let color = clickLightsColor;
+    if(clickLightsMatchCursor) {
+        color = cursorLight.color;
+    } 
+    else {
+        if(clickLightsColorHueRange!=0) {       
+            color = changeHue(clickLightsColor, clickLightsColorHueRange>0 ? rand(0, clickLightsColorHueRange) : -rand (0, -clickLightsColorHueRange));
+        }
+    }
+
+    return new Light(cursorLight.x, cursorLight.y, size, color, clickLightsTrailLenght, clickLightsColorHueChange, xSpeed, ySpeed);
+}
+
 function updateCursorLight() {
     cursorLight.moveTo(cursor.x, cursor.y);
-    if(cursor.x>0 && cursor.x<innerWidth && cursor.y>0 && cursor.y<innerHeight)
-        cursorLight.update()
+    cursorLight.update()
 }
 
 function updateRandomLights() {
     for(let i = 0; i < randomLightsCount; i++) {
 
-        if( typeof randomLights[i] == "undefined" ||
-            randomLights[i].x > innerWidth + randomLights[i].radius ||
-            randomLights[i].x < -randomLights[i].radius || 
-            randomLights[i].y > innerHeight + randomLights[i].radius ||
-            randomLights[i].y < -randomLights[i].radius 
+        if( typeof randomLights[i] == "undefined"
+            || randomLights[i].x > innerWidth + randomLights[i].radius || randomLights[i].x < -randomLights[i].radius
+            || randomLights[i].y > innerHeight + randomLights[i].radius || randomLights[i].y < -randomLights[i].radius 
         )
         randomLights[i] = newRandomLight();
 
         randomLights[i].update();
     }
+}
+
+function updateClickLights() {
+
+    remainingClickLights = clickLights.filter(clickLight => (
+        clickLight.x < innerWidth + clickLight.radius  && clickLight.x > -clickLight.radius &&      // drop it to another function
+        clickLight.y < innerHeight + clickLight.radius && clickLight.y > -clickLight.radius 
+    ));
+
+    clickLights = remainingClickLights;
+
+    for(let i = 0; i < clickLights.length; i++)
+        clickLights[i].update();
+}
+
+function generateClickLights() {
+    for(let i=0; i<clickLightsCount; i++)
+        clickLights.push(newClickLight());
 }
 
 function updateParticles()
@@ -349,16 +446,10 @@ function updateParticles()
 // animation setup and loop
 
 let hueChangecounter = rareOperationsSyncFpsDivider;
-const canvas = document.getElementById('canvas');
-const context = canvas.getContext('2d');
-const cursor = {
-    x: innerWidth / 2,
-    y: innerHeight / 2,
-};
-
 let cursorLight = new Light(cursor.x, cursor.y, cursorLightSize, cursorLightColor, cursorLightTrailLenght, cursorLightColorHueChange);
 let randomLights = [];
 let trailParticles = [];
+let clickLights = [];
 
 let backgroundGradient = context.createLinearGradient(0, 0, innerHeight, innerWidth);
     backgroundGradient.addColorStop(0, backgroundColor1);
@@ -367,47 +458,81 @@ let backgroundGradient = context.createLinearGradient(0, 0, innerHeight, innerWi
 let hexagondGradient = context.createLinearGradient(0, 0, innerHeight, innerWidth);
     hexagondGradient.addColorStop(0, hexagonsColor1);
     hexagondGradient.addColorStop(1, hexagonsColor2);
-    
-canvas.height = innerHeight;
-canvas.width = innerWidth;
-animate();
 
-function animate() {
+// let logicFrameTime1 = performance.now();
+// let logicFrameTime2 = performance.now();
+
+ let renderFrameTime1 = performance.now();
+ let renderFrameTime2 = performance.now();
+
+// web workers?
+setInterval(() => {updateLogic();}, 1000/LogicUpdatesPerSecond);
+setInterval(() => {renderFrame();}, 1000/FramesPerSecond);
+
+function updateLogic() {
     hueChangecounter--;
-    context.fillStyle = backgroundGradient;
-    context.fillRect(0, 0, canvas.width, canvas.height);
     updateRandomLights();
+    updateClickLights();
     updateCursorLight();
     updateParticles();
-    drawGrid(canvas.width, canvas.height, hexagonsSize, hexagonsMargin);
     if(hueChangecounter<1) hueChangecounter = rareOperationsSyncFpsDivider;
-    setTimeout(() => {requestAnimationFrame(animate);}, 1000 / fps);
+
+    // logicFrameTime2 = performance.now();
+    // console.log("Logic frame time: " + (logicFrameTime2 - logicFrameTime1).toFixed(1) + " ms");
+    // logicFrameTime1 = performance.now();
+}
+
+function renderFrame() {
+    context.fillStyle = backgroundGradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    randomLights.forEach(randomLight => {randomLight.draw();});
+    clickLights.forEach(clickLight => {clickLight.draw();});
+    cursorLight.draw();
+    trailParticles.forEach(particle => {particle.draw();});
+    drawGrid(canvas.width, canvas.height, hexagonsSize, hexagonsMargin);
+
+     renderFrameTime2 = performance.now();
+     console.log("render frame time: " + (renderFrameTime2 - renderFrameTime1).toFixed(1) + " ms");
+     renderFrameTime1 = performance.now();
 }
 
 // listeners
+
+addEventListener("resize", (e) => {
+    canvas.height = innerHeight;
+    canvas.width = innerWidth;
+});
 
 addEventListener("mousemove", (e) => {
     cursor.x = e.clientX;
     cursor.y = e.clientY;
 });
 
-addEventListener("touchmove", (e) => {
-    e.preventDefault();
-    cursor.x = e.touches[0].clientX;
-    cursor.y = e.touches[0].clientY;
-    },
-    { passive: false }
-);
-  
-addEventListener("resize", (e) => {
-    canvas.height = innerHeight;
-    canvas.width = innerWidth;
+// not working
+addEventListener("mouseenter", (e) => {
+    console.log("mouseenter");
+    cursor.x = e.clientX;
+    cursor.y = e.clientY;
 });
+
+// not working
+addEventListener("mouseleave", (e) => {
+    console.log("mouseleave");
+    cursor.x = - cursorLightSize
+    cursor.y = - cursorLightSize
+});
+
+addEventListener("click", (e) => {
+    generateClickLights();
+})
+
+trailParticles.push(new Particle(this.x, this.y, this.radius, this.color, this.trailLenght));
 
 function livelyPropertyListener(name, val) {
     switch(name) {
 
-    // COLORS:
+    // BACKGROUND AND GRID COLORS:
 
         case "backgroundColor1":
             backgroundColor1 = val;
@@ -513,6 +638,48 @@ function livelyPropertyListener(name, val) {
             
         case "randomLightsTrailLenght":
             randomLightsTrailLenght = val;
+            break;
+
+    // CLICK LIGHTS:
+
+        case "clickLightsCount":
+            clickLightsCount = val;
+            break;
+
+        case "clickLightsColor":
+            clickLightsColor = val;
+            break;
+
+        case "clickLightsColorHueRange":
+            clickLightsColorHueRange = val;
+            break;
+
+        case "clickLightsMatchCursor":
+            clickLightsMatchCursor = val;
+            break;
+
+        case "clickLightsColorHueChange":    
+            clickLightsColorHueChange = val;
+            break;
+
+        case "clickLightsSizeMin":
+            clickLightsSizeMin = val;
+            break;
+
+        case "clickLightsSizeMax":
+            clickLightsSizeMax = val;
+            break; 
+
+        case "clickLightsSpeedMin":
+            clickLightsSpeedMin = val;
+            break;    
+
+        case "clickLightsSpeedMax":
+            clickLightsSpeedMax = val;
+            break;    
+            
+        case "clickLightsTrailLenght":
+            clickLightsTrailLenght = val;
             break;
     }
 }
