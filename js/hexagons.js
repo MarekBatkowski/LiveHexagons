@@ -4,20 +4,19 @@ let backgroundColor2 =  "#242424" // "rgb(24,24,24)";
 let hexagonsColor1 =    "#384048" // "rgb(56,64,72)";
 let hexagonsColor2 =    "#54606C" // "rgb(84,96,108)";
 let HexagonsEdgeColor = "#C0C0C0" // "rgb(192,192,192)";
-// HEXAGONS:ss
+// HEXAGONS:
 let hexagonsSize = 40;
 let hexagonsMargin = 5;
-//let displayAsTriangles = false;
 // CURSOR LIGHT:    
 let cursorLightColor = "#6080FF";
 let cursorLightColorHueChange = -18;
-let cursorLightSize = 50;
+let cursorLightSize = 75;
 let cursorLightTrailLenght = 25;
 // RANDOM LIGHTS 
 let randomLightsCount = 2;
 let randomLightsColor = "#FF6000";
 let randomLightsColorHueRange = -64;      
-let randomLightsColorHueChange = 90;  
+let randomLightsColorHueChange = 32;  
 let randomLightsSizeMin = 20;
 let randomLightsSizeMax = 40;
 let randomLightsSpeedMin = 3;
@@ -39,7 +38,6 @@ let clickLightsTrailLenght = 10;
 const FramesPerSecond = 120;
 const LogicUpdatesPerSecond = 120;
 
-const rareOperationsSyncFpsDivider = 12;
 const angle60 = Math.PI * 2 / 6;
 const angle30 = Math.PI * 2 / 12;
 
@@ -178,10 +176,7 @@ function normalize_rgb_value(color, m) {
 function drawGrid(width, height, size, margin) {
     for (let y = 0; y < height + size; y += size * Math.sin(angle60)) {
         for (let x = 0, j = 0; x < width + (2 + (-1)**j) * size; x += size * (1 + Math.cos(angle60)), y += (-1) ** j++ * size * Math.sin(angle60)) {
-        //    if(!displayAsTriangles)
-                drawHexagon(x, y, size-margin);
-        //    else
-        //      drawTriangle(x, y, size, margin);
+            drawHexagon(x, y, size-margin);
         }
     }
 }
@@ -197,35 +192,6 @@ function drawHexagon(x, y, size) {
     context.closePath();
     context.fill();
     context.stroke();
-}
-
-function drawTriangle(x, y, size, margin) {
-    context.lineWidth = 1;
-    context.strokeStyle = HexagonsEdgeColor;
-    context.fillStyle = hexagondGradient;
-    let centerOffset = 2/3*(size)*Math.sqrt(3)/2
-
-    for (let i = 0; i < 6; i++) {
-        context.beginPath();
-        context.lineTo(x + margin * Math.cos((angle60 * i) + angle30), y + margin * Math.sin((angle60 * i) + angle30));
-        context.lineTo(x + centerOffset * Math.cos(angle30 + (angle60 * i)), y + centerOffset * Math.sin(angle30 + (angle60 * i)));
-        context.closePath();
-        context.stroke();
-
-        context.beginPath();
-        context.lineWidth = 1;
-        context.strokeStyle = HexagonsEdgeColor;
-        context.fillStyle = hexagondGradient;
-    
-        triangleX = x + centerOffset * Math.cos(angle30 + (angle60 * i));
-        triangleY = y + centerOffset * Math.sin(angle30 + (angle60 * i));
-
-        for (let j = 0; j < 3; j++) 
-            context.lineTo(triangleX + size/2 * Math.cos((angle60 * 2 * j) + (angle60 * i) - angle30), triangleY + size/2 * Math.sin((angle60 * 2 * j) + (angle60 * i) - angle30));
-        context.closePath();
-        context.fill();
-        context.stroke();
-    }
 }
 
 class Particle{
@@ -404,6 +370,10 @@ function updateCursorLight() {
 }
 
 function updateRandomLights() {
+    while(randomLightsCount < randomLights.length) {
+        randomLights.pop();
+    }
+
     for(let i = 0; i < randomLightsCount; i++) {
 
         if( typeof randomLights[i] == "undefined"
@@ -445,7 +415,6 @@ function updateParticles()
 
 // animation setup and loop
 
-let hueChangecounter = rareOperationsSyncFpsDivider;
 let cursorLight = new Light(cursor.x, cursor.y, cursorLightSize, cursorLightColor, cursorLightTrailLenght, cursorLightColorHueChange);
 let randomLights = [];
 let trailParticles = [];
@@ -470,12 +439,10 @@ setInterval(() => {updateLogic();}, 1000/LogicUpdatesPerSecond);
 setInterval(() => {renderFrame();}, 1000/FramesPerSecond);
 
 function updateLogic() {
-    hueChangecounter--;
     updateRandomLights();
     updateClickLights();
     updateCursorLight();
     updateParticles();
-    if(hueChangecounter<1) hueChangecounter = rareOperationsSyncFpsDivider;
 
     // logicFrameTime2 = performance.now();
     // console.log("Logic frame time: " + (logicFrameTime2 - logicFrameTime1).toFixed(1) + " ms");

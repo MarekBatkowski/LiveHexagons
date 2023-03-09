@@ -5,13 +5,13 @@
     },
 
             "backgroundColor1": {
-                "text": "Cursor light color 1",
+                "text": "Background gradient color 1",
                 "type": "color",
                 "value": "#0C0C0C"
             },
 
             "backgroundColor2": {
-                "text": "Cursor light color 2",
+                "text": "Background gradient color 2",
                 "type": "color",
                 "value": "#242424"
             },
@@ -43,8 +43,8 @@
                 "text": "Hexagons size",
                 "type": "slider",
                 "max": 250,
-                "min": 20,
-                "tick": 221,
+                "min": 10,
+                "tick": 241,
                 "value": 50
             },
 
@@ -74,16 +74,16 @@
                 "max": 360,
                 "min": -360,
                 "tick": 721,
-                "value": 5
+                "value": 18
             },
 
             "cursorLightSize": {
                 "text": "Cursor light size",
                 "type": "slider",
                 "max": 200,
-                "min": 5,
-                "tick": 251,
-                "value": 50
+                "min": 0,
+                "tick": 201,
+                "value": 75
             },
 
             "cursorLightTrailLenght": {
@@ -105,12 +105,12 @@
                 "type": "slider",
                 "max": 10,
                 "min": 0,
-                "tick": 16,
-                "value": 2.0
+                "tick": 11,
+                "value": 2
             },
 
             "randomLightsColor": {
-                "text": "Random lights start color hue range",
+                "text": "Random lights start color",
                 "type": "color",
                 "value": "#FF6000"
             },
@@ -130,7 +130,7 @@
                 "max": 360,
                 "min": -360,
                 "tick": 721,
-                "value": 0.0
+                "value": 0
             },
 
             "randomLightsSizeMin": {
@@ -138,7 +138,7 @@
                 "type": "slider",
                 "max": 100,
                 "min": 5,
-                "tick": 91,
+                "tick": 96,
                 "value": 20
             },
 
@@ -146,34 +146,34 @@
                 "text": "Random lights size max",
                 "type": "slider",
                 "max": 100,
-                "min": 10,
-                "tick": 91,
+                "min": 5,
+                "tick": 96,
                 "value": 40
             },
 
             "randomLightsSpeedMin": {
                 "text": "Random lights speed min",
                 "type": "slider",
-                "max": 100,
-                "min": 0,
-                "tick": 201,
+                "max": 50,
+                "min": 1,
+                "tick": 50,
                 "value": 3
             },
 
             "randomLightsSpeedMax": {
                 "text": "Random lights speed max",
                 "type": "slider",
-                "max": 100,
-                "min": 0,
-                "tick": 201,
+                "max": 50,
+                "min": 1,
+                "tick": 50,
                 "value": 5
             },
 
             "randomLightsTrailLenght": {
-                "text": "Cursor light trail",
+                "text": "Random lights trail lenght (large values are performance heavy!)",
                 "type": "slider",
                 "max": 100,
-                "min": 0,
+                "min": 1,
                 "tick": 101,
                 "value": 50
             },
@@ -186,16 +186,16 @@
             "clickLightsCount": {
                 "text": "Click lights count",
                 "type": "slider",
-                "max": 10,
+                "max": 20,
                 "min": 0,
-                "tick": 16,
-                "value": 15
+                "tick": 21,
+                "value": 10
             },
 
             "clickLightsColor": {
-                "text": "Click lights start color hue range",
+                "text": "Click lights start color",
                 "type": "color",
-                "value": "#FF6000"
+                "value": "#6080FF"
             },
 
             "clickLightsColorHueRange": {
@@ -227,7 +227,7 @@
                 "type": "slider",
                 "max": 100,
                 "min": 5,
-                "tick": 91,
+                "tick": 96,
                 "value": 10
             },
 
@@ -235,31 +235,31 @@
                 "text": "Click lights size max",
                 "type": "slider",
                 "max": 100,
-                "min": 10,
-                "tick": 91,
+                "min": 5,
+                "tick": 96,
                 "value": 15
             },
 
             "clickLightsSpeedMin": {
                 "text": "Click lights speed min",
                 "type": "slider",
-                "max": 100,
-                "min": 0,
-                "tick": 201,
+                "max": 50,
+                "min": 1,
+                "tick": 50,
                 "value": 25
             },
 
             "clickLightsSpeedMax": {
                 "text": "Click lights speed max",
                 "type": "slider",
-                "max": 100,
-                "min": 0,
-                "tick": 201,
+                "max": 50,
+                "min": 1,
+                "tick": 50,
                 "value": 25
             },
 
             "clickLightsTrailLenght": {
-                "text": "Cursor light trail",
+                "text": "Click lights lenght (large values are performance heavy!)",
                 "type": "slider",
                 "max": 100,
                 "min": 0,
