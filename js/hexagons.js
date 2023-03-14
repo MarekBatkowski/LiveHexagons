@@ -1,9 +1,9 @@
 // BACKGROUND AND GRID COLORS:
-let backgroundColor1 =  "#0C0C0C" // "rgb(12,12,12)";
+let backgroundColor1 =  "#080808" // "rgb(12,12,12)";
 let backgroundColor2 =  "#242424" // "rgb(24,24,24)";
 let hexagonsColor1 =    "#384048" // "rgb(56,64,72)";
-let hexagonsColor2 =    "#54606C" // "rgb(84,96,108)";
-let HexagonsEdgeColor = "#C0C0C0" // "rgb(192,192,192)";
+let hexagonsColor2 =    "#708090" // "rgb(84,96,108)";
+let hexagonsEdgeColor = "#C0C0C0" // "rgb(192,192,192)";
 // HEXAGONS:
 let hexagonsSize = 40;
 let hexagonsMargin = 5;
@@ -23,10 +23,10 @@ let randomLightsSpeedMin = 3;
 let randomLightsSpeedMax = 5;
 let randomLightsTrailLenght = 50;
 // CLICK LIGTHS
-let clickLightsCount = 15;
+let clickLightsCount = 10;
 let clickLightsColor = "#6080FF";
 let clickLightsColorHueRange = 32      
-let clickLightsColorHueChange = 30; 
+let clickLightsColorHueChange = 128; 
 let clickLightsMatchCursor = true;
 let clickLightsSizeMin = 10;
 let clickLightsSizeMax = 15;
@@ -35,8 +35,8 @@ let clickLightsSpeedMax = 20;
 let clickLightsTrailLenght = 10;
  
 // consts
-const FramesPerSecond = 120;
-const LogicUpdatesPerSecond = 120;
+const FramesPerSecond = 1200;
+const LogicUpdatesPerSecond = 1200;
 
 const angle60 = Math.PI * 2 / 6;
 const angle30 = Math.PI * 2 / 12;
@@ -50,7 +50,6 @@ const cursor = {
     x: - 2 * cursorLightSize,
     y: - 2 * cursorLightSize
 };
-
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 const hexToDecimal = hex => parseInt(hex, 16);
@@ -172,26 +171,53 @@ function normalize_rgb_value(color, m) {
 }
 
 // hexagons generation
+// context.isPointInPath(cursor.x, cursor.y)
 
-function drawGrid(width, height, size, margin) {
-    for (let y = 0; y < height + size; y += size * Math.sin(angle60)) {
-        for (let x = 0, j = 0; x < width + (2 + (-1)**j) * size; x += size * (1 + Math.cos(angle60)), y += (-1) ** j++ * size * Math.sin(angle60)) {
-            drawHexagon(x, y, size-margin);
+function generateGrid(width, height, size, margin) {
+    hexagons = [];
+    for (let y = 0; y < height + size * 2; y += size * 2 * Math.sin(angle60))
+    {
+        for(let x = 0; x < width + size * 2; x += size * 1.5) {
+            hexagons.push(new Hexagon(x, x%size==0 ? y : y + size * Math.sin(angle60), size, margin, hexagonsGradient, "default"));
         }
     }
 }
 
-function drawHexagon(x, y, size) {
-    context.beginPath();
-    context.lineWidth = 1;
-    context.strokeStyle = HexagonsEdgeColor;
-    context.fillStyle = hexagondGradient;
+class Hexagon{
+    constructor(x, y, size, margin, fillstyle, state){
+        this.x = x;
+        this.y = y;
+        this.size = size;
+        this.margin = margin;
+        this.fillstyle = fillstyle;
+        this.state = state;
+        this.stateVariable = 0;
 
-    for (let i = 0; i < 6; i++) 
-        context.lineTo(x + size * Math.cos(angle60 * i), y + size * Math.sin(angle60 * i));
-    context.closePath();
-    context.fill();
-    context.stroke();
+        this.createHexPath(this.size - this.margin);
+    }
+
+    createHexPath(size) {
+        this.path = new Path2D();
+        for (let i = 0; i < 6; i++) 
+            this.path.lineTo(this.x + (size) * Math.cos(angle60 * i), this.y + (size) * Math.sin(angle60 * i));
+        this.path.closePath();
+    }
+
+    draw() {
+        context.beginPath();
+        context.lineWidth = 1;
+        context.strokeStyle = hexagonsEdgeColor;
+
+        if(this.state == "active")
+            context.fillStyle = "#808080";
+        if(this.state == "click")
+            context.fillStyle = "#ffffff";
+        if(this.state == "default")
+            context.fillStyle = hexagonsGradient;
+
+        context.fill(this.path);
+        context.stroke(this.path);
+    }
 }
 
 class Particle{
@@ -392,11 +418,9 @@ function updateClickLights() {
         clickLight.x < innerWidth + clickLight.radius  && clickLight.x > -clickLight.radius &&      // drop it to another function
         clickLight.y < innerHeight + clickLight.radius && clickLight.y > -clickLight.radius 
     ));
-
     clickLights = remainingClickLights;
 
-    for(let i = 0; i < clickLights.length; i++)
-        clickLights[i].update();
+    clickLights.forEach(light => {light.update();});
 }
 
 function generateClickLights() {
@@ -406,33 +430,63 @@ function generateClickLights() {
 
 function updateParticles()
 {
-    for(let i = 0; i < trailParticles.length; i++)
-        trailParticles[i].update();
-
+    trailParticles.forEach(particle => {particle.update();});
     remainingTrailParticles = trailParticles.filter(particle => particle.remainingLife > 0);
     trailParticles = remainingTrailParticles;
+}
+
+function updateHexagons(click = false) {
+    hexagons.forEach(hex => {
+        if(hex.state == "active") {
+            if(hex.stateVariable<1)
+                hex.state = "default";
+            else
+                hex.stateVariable--;
+        }
+
+        if(context.isPointInPath(hex.path, cursor.x, cursor.y)) 
+        {
+            if(click) {
+                if(hex.state != "click")
+                    hex.state = "click";
+                else {
+                    hex.state = "active";
+                    hex.stateVariable = 60;
+                }
+            } else {
+                if(hex.state != "click") {
+                    hex.state = "active";
+                    hex.stateVariable = 60;
+                }
+            }
+        }
+    });
 }
 
 // animation setup and loop
 
 let cursorLight = new Light(cursor.x, cursor.y, cursorLightSize, cursorLightColor, cursorLightTrailLenght, cursorLightColorHueChange);
+
 let randomLights = [];
 let trailParticles = [];
 let clickLights = [];
+
+let hexagons = [];
 
 let backgroundGradient = context.createLinearGradient(0, 0, innerHeight, innerWidth);
     backgroundGradient.addColorStop(0, backgroundColor1);
     backgroundGradient.addColorStop(1, backgroundColor2);
 
-let hexagondGradient = context.createLinearGradient(0, 0, innerHeight, innerWidth);
-    hexagondGradient.addColorStop(0, hexagonsColor1);
-    hexagondGradient.addColorStop(1, hexagonsColor2);
+let hexagonsGradient = context.createLinearGradient(0, 0, innerHeight, innerWidth);
+    hexagonsGradient.addColorStop(0, hexagonsColor1);
+    hexagonsGradient.addColorStop(1, hexagonsColor2);
 
-// let logicFrameTime1 = performance.now();
-// let logicFrameTime2 = performance.now();
+generateGrid(canvas.width, canvas.height, hexagonsSize, hexagonsMargin);
 
- let renderFrameTime1 = performance.now();
- let renderFrameTime2 = performance.now();
+let logicFrameTime1 = performance.now();
+let logicFrameTime2 = performance.now();
+let renderFrameTime1 = performance.now();
+let renderFrameTime2 = performance.now();
 
 // web workers?
 setInterval(() => {updateLogic();}, 1000/LogicUpdatesPerSecond);
@@ -443,6 +497,7 @@ function updateLogic() {
     updateClickLights();
     updateCursorLight();
     updateParticles();
+//    updateHexagons();
 
     // logicFrameTime2 = performance.now();
     // console.log("Logic frame time: " + (logicFrameTime2 - logicFrameTime1).toFixed(1) + " ms");
@@ -457,11 +512,11 @@ function renderFrame() {
     clickLights.forEach(clickLight => {clickLight.draw();});
     cursorLight.draw();
     trailParticles.forEach(particle => {particle.draw();});
-    drawGrid(canvas.width, canvas.height, hexagonsSize, hexagonsMargin);
+    hexagons.forEach(hexagon => {hexagon.draw();});
 
-     renderFrameTime2 = performance.now();
-     console.log("render frame time: " + (renderFrameTime2 - renderFrameTime1).toFixed(1) + " ms");
-     renderFrameTime1 = performance.now();
+    renderFrameTime2 = performance.now();
+    console.log("render frame time: " + (renderFrameTime2 - renderFrameTime1).toFixed(1) + " ms");
+    renderFrameTime1 = performance.now();
 }
 
 // listeners
@@ -469,11 +524,13 @@ function renderFrame() {
 addEventListener("resize", (e) => {
     canvas.height = innerHeight;
     canvas.width = innerWidth;
+    generateGrid(canvas.width, canvas.height, hexagonsSize, hexagonsMargin);
 });
 
 addEventListener("mousemove", (e) => {
     cursor.x = e.clientX;
     cursor.y = e.clientY;
+//    updateHexagons();
 });
 
 // not working
@@ -492,6 +549,7 @@ addEventListener("mouseleave", (e) => {
 
 addEventListener("click", (e) => {
     generateClickLights();
+//    updateHexagons(true);
 })
 
 trailParticles.push(new Particle(this.x, this.y, this.radius, this.color, this.trailLenght));
@@ -517,20 +575,20 @@ function livelyPropertyListener(name, val) {
 
         case "hexagonsColor1":
             hexagonsColor1 = val;
-            hexagondGradient = context.createLinearGradient(0, 0, innerHeight, innerWidth);
-            hexagondGradient.addColorStop(0, hexagonsColor1);
-            hexagondGradient.addColorStop(1, hexagonsColor2);
+            hexagonsGradient = context.createLinearGradient(0, 0, innerHeight, innerWidth);
+            hexagonsGradient.addColorStop(0, hexagonsColor1);
+            hexagonsGradient.addColorStop(1, hexagonsColor2);
             break;
 
         case "hexagonsColor2":
             hexagonsColor2 = val;
-            hexagondGradient = context.createLinearGradient(0, 0, innerHeight, innerWidth);
-            hexagondGradient.addColorStop(0, hexagonsColor1);
-            hexagondGradient.addColorStop(1, hexagonsColor2);
+            hexagonsGradient = context.createLinearGradient(0, 0, innerHeight, innerWidth);
+            hexagonsGradient.addColorStop(0, hexagonsColor1);
+            hexagonsGradient.addColorStop(1, hexagonsColor2);
             break;
 
         case "HexagonsEdgeColor":
-            HexagonsEdgeColor = val;
+            hexagonsEdgeColor = val;
             break;
 
     // HEXAGONS:
